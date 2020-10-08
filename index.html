@@ -1,0 +1,78 @@
+
+
+<div>
+  <h1>VA iPart Demo</h1>
+  <br/>
+<h2>Keys</h2>
+  <b>contentItemKey</b><br/>
+<input type="text" id="x-contentItemKeyVaDemo1" style="width:400px;" readonly value="[x-contentItemKey]"><br/>
+<b>contentKey</b><br/>
+<input type="text" id="x-contentKeyVaDemo1"  style="width:400px;"  readonly value="[x-contentKey]"><br/>
+
+
+<br/><br/>
+<h2>Settings</h2>
+<pre>
+  <span style="font-size: 20px;" id="va-ipart-settings-value"></span>
+  </pre>
+</div>
+
+<script>
+
+jQuery(function () {
+    
+    let CONTENT_ITEM_API = '/api/ContentItem';
+
+    function getIMISRequestVerificationToken() {
+        var result = "";
+        
+        // Passthrough authentication - get the __RequestVerificationToken that is injected into the page by the iMIS site.
+        var element = document.getElementById("__RequestVerificationToken"); 
+        if (element != null) {
+            result = element.value;
+        }
+
+        return result;
+    }
+
+    // This call gets the settings since the #JsonSettings input element is not on the client-side of the iPart
+    jQuery.ajax({
+        url: CONTENT_ITEM_API,
+        method: 'GET',
+        data: {
+            contentItemKey: jQuery('#x-contentItemKeyVaDemo1').val(), // This must be present on the index and config HTML pages
+            contentKey: jQuery('#x-contentKeyVaDemo1').val() // This must be present on the index and config HTML pages
+        },
+        headers: {
+            "Content-Type": "application/json",
+            "RequestVerificationToken": getIMISRequestVerificationToken()
+        },
+        success: function (data) {
+            // Extract settings from 'data' here and use it on the front-end
+			 console.log("JSON Object");
+              console.log(JSON.stringify(data));
+
+            let settings = {};
+
+            if (data.Items != null) {
+                // Response from cloud instance
+                settings = data.Items.$values[0].Data.Settings;
+            } else {
+                // Response from desktop instance
+                settings = data.Settings;
+            }
+            
+            // Once the settings are loaded from the server, they can be used by the iPart.
+            // In this case, just display the value on the screen.
+            jQuery('#va-ipart-settings-value').html(JSON.stringify(settings));
+			  console.log("settings");
+			  console.log(settings);
+		
+        },
+        error: function (xhr, status, error) {
+            console.log(error);
+            console.dir(xhr);
+        }
+    });
+});
+</script>

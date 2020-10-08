@@ -1,0 +1,66 @@
+<!-- NOTE: do not remove these two, only way to grab settings -->
+<input type="hidden" id="x-contentItemKeyVaDemo1" value="[x-contentItemKey]">
+<input type="hidden" id="x-contentKeyVaDemo1" value="[x-contentKey]">
+
+<h3>Title</h3>
+<input type="text" id="iPartSettingsTitle">
+
+<h3>Setting 1</h3>
+<input type="text" id="iPartSettingsSetting1">
+
+<h3>Setting 2</h3>
+<input type="text" id="iPartSettingsSetting2">
+
+<script>
+
+  // The settings for the iPart reside in the hidden input called JsonSettings
+  function getJsonSettingsInput() {
+    return jQuery("#JsonSettings").get(0);
+  }
+
+  // Retrieve the iPart settings.
+  // Convert them into a JSON object and save them in the hidden input called JsonSettings
+  function serializeSettings(settingsJson) {
+    var input = this.getJsonSettingsInput();
+    if (input != null) {
+      input.value = JSON.stringify(settingsJson);
+    } else {
+      console.warn("json settings not available::", JSON.stringify(settingsJson));
+    }
+  }
+
+  // We need a way for this page to update the settings.
+  // In this case, we can watch for the change event of the input field and push an update each time.
+  function onChange() {
+    let settingsJson = { 'iPartSettingsTitle': jQuery('#iPartSettingsTitle').val(),'iPartSettingsSetting1': jQuery('#iPartSettingsSetting1').val(),'iPartSettingsSetting2': jQuery('#iPartSettingsSetting2').val()  };
+    serializeSettings(settingsJson);
+  }
+
+  jQuery(function () {
+
+    // Load the settings from the hidden field (JsonSettings) and parse as JSON object
+    let settingsJSONObj = {};
+    let settingsString = jQuery(getJsonSettingsInput()).val();
+    if (settingsString !== null && settingsString !== '') {
+      settingsJSONObj = jQuery.parseJSON(settingsString);
+    }
+
+    // Load the existing value that we had previously saved.
+    if (settingsJSONObj.hasOwnProperty('iPartSettingsTitle')) {
+      jQuery("#iPartSettingsTitle").val(settingsJSONObj.iPartSettingsTitle);
+    }
+
+    // When the text box value changes, update the JsonSettings hidden input field
+    jQuery("#iPartSettingsTitle").change(function () {
+      onChange();
+    });
+	 jQuery("#iPartSettingsSetting1").change(function () {
+      onChange();
+    });
+	 jQuery("#iPartSettingsSetting2").change(function () {
+      onChange();
+    });
+
+  })
+
+</script>
